@@ -11,8 +11,6 @@ function verSucursales(req, res) {
       return res
         .status(500)
         .send({ Error: "Error en la petición para ver las sucursales." });
-    if (sucursalesEncontradas.length == 0)
-      return res.status(500).send({ Error: "No tienes ninguna sucursal." });
     return res.status(200).send({ Mis_sucursales: sucursalesEncontradas });
   });
 }

@@ -19,7 +19,7 @@ function registroEntidades(req, res) {
     modeloEntidades.usuario = datos.usuario;
     modeloEntidades.rol = "EMPRESA";
 
-    Entidades.find((error, empresaEncontrada) => {
+    Entidades.find({usuario:datos.usuario},(error, empresaEncontrada) => {
       if (empresaEncontrada.length == 0) {
         encriptar.hash(datos.password, null, null, (error, claveEncriptada) => {
           modeloEntidades.password = claveEncriptada;
