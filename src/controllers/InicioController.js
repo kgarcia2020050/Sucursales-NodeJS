@@ -28,31 +28,43 @@ function Admin() {
 function Login(req, res) {
   var datos = req.body;
 
-  Entidades.findOne({ usuario: datos.usuario }, (error, usuarioEncontrado) => {
-    if (error) return res.status(500).send({ Error: "Error en la peticion." });
-    if (usuarioEncontrado) {
-      encriptar.compare(
-        datos.password,
-        usuarioEncontrado.password,
-        (error, claveVerificada) => {
-          if (claveVerificada) {
-            if (datos.obtenerToken == "true") {
-              return res
-                .status(200)
-                .send({ Token: jwt.crearToken(usuarioEncontrado) });
-            } else {
-              usuarioEncontrado.password = undefined;
-              return res
-                .status(200)
-                .send({ Inicio_exitoso: usuarioEncontrado });
+  if (datos.usuario==null||datos.password==null) {
+    return res.status(500).send({ Error: "Debes ingresar todos los datos." });
+  } else {
+    Entidades.findOne(
+      { usuario: datos.usuario },
+      (error, usuarioEncontrado) => {
+        if (error)
+          return res.status(500).send({ Error: "Error en la peticion." });
+        if (usuarioEncontrado) {
+          encriptar.compare(
+            datos.password,
+            usuarioEncontrado.password,
+            (error, claveVerificada) => {
+              if (claveVerificada) {
+                if (datos.obtenerToken == "true") {
+                  return res
+                    .status(200)
+                    .send({ Token: jwt.crearToken(usuarioEncontrado) });
+                } else {
+                  usuarioEncontrado.password = undefined;
+                  return res
+                    .status(200)
+                    .send({ Inicio_exitoso: usuarioEncontrado });
+                }
+              } else {
+                return res.status(500).send({ Error: "La clave no coincide." });
+              }
             }
-          } else {
-            return res.status(500).send({ Error: "La clave no coincide." });
-          }
+          );
+        } else {
+          return res
+            .status(500)
+            .send({ Error: "Los datos de inicio no existen." });
         }
-      );
-    }
-  });
+      }
+    );
+  }
 }
 
 module.exports = {
