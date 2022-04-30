@@ -1,6 +1,10 @@
 const Entidades = require("../models/modeloEntidad");
 const encriptar = require("bcrypt-nodejs");
 
+const Productos = require("../models/modeloProductos");
+
+const Sucursales = require("../models/modeloSucursales");
+
 function registroEntidades(req, res) {
   var datos = req.body;
   var modeloEntidades = new Entidades();
@@ -19,7 +23,7 @@ function registroEntidades(req, res) {
     modeloEntidades.usuario = datos.usuario;
     modeloEntidades.rol = "EMPRESA";
 
-    Entidades.find({usuario:datos.usuario},(error, empresaEncontrada) => {
+    Entidades.find({ usuario: datos.usuario }, (error, empresaEncontrada) => {
       if (empresaEncontrada.length == 0) {
         encriptar.hash(datos.password, null, null, (error, claveEncriptada) => {
           modeloEntidades.password = claveEncriptada;
@@ -33,7 +37,7 @@ function registroEntidades(req, res) {
             return res.status(200).send({ Empresa_nueva: empresaAgregada });
           });
         });
-      }/*  else {
+      } /*  else {
         return res.status(500).send({ Error: "Esta empresa ya existe." });
       } */
     });
@@ -51,14 +55,16 @@ function verEntidades(req, res) {
   });
 }
 
-function empresaId(req,res){
-  var idEmpresa=req.params.ID;
-  Entidades.findById({_id:idEmpresa},(error,empresaEncontrada)=>{
-    if(error) return res.status(500).send({Error:"Error al obtener la empresa por su ID."});
-    return res.status(200).send({Empresa_encontrada:empresaEncontrada})
-  })
+function empresaId(req, res) {
+  var idEmpresa = req.params.ID;
+  Entidades.findById({ _id: idEmpresa }, (error, empresaEncontrada) => {
+    if (error)
+      return res
+        .status(500)
+        .send({ Error: "Error al obtener la empresa por su ID." });
+    return res.status(200).send({ Empresa_encontrada: empresaEncontrada });
+  });
 }
-
 
 function editarEntidad(req, res) {
   var idEmpresa = req.params.ID;
@@ -129,21 +135,50 @@ function editarEntidad(req, res) {
 function eliminarEntidades(req, res) {
   var idEmpresa = req.params.ID;
 
-  Entidades.findByIdAndDelete(idEmpresa, (error, empresaEliminada) => {
-    if (error)
-      return res
-        .status(500)
-        .send({ Error: "Error en la peticion para eliminar." });
-    if (empresaEliminada == 0)
-      return res.status(500).send({ Error: "La empresa no existe." });
-    return res.status(200).send({ Empresa_eliminada: empresaEliminada });
-  });
+  Sucursales.deleteMany(
+    { idEmpresa: idEmpresa },
+    (error, sucursalesEliminadas) => {
+      if (error)
+        return res
+          .status(500)
+          .send({
+            Error: "Error al eliminar las sucursales de la empresa requerida.",
+          });
+
+      Productos.deleteMany(
+        { idEmpresa: idEmpresa },
+        (error, productosEliminados) => {
+          if (error)
+            return res
+              .status(500)
+              .send({
+                Error:
+                  "Error al eliminar los productos de la empresa requerida.",
+              });
+
+          Entidades.findByIdAndDelete(idEmpresa, (error, empresaEliminada) => {
+            if (error)
+              return res
+                .status(500)
+                .send({ Error: "Error en la peticion para eliminar." });
+            if (empresaEliminada == 0)
+              return res.status(500).send({ Error: "La empresa no existe." });
+            return res
+              .status(200)
+              .send({ Empresa_eliminada: empresaEliminada });
+          });
+        }
+      );
+    }
+  );
 }
+
+
 
 module.exports = {
   registroEntidades,
   verEntidades,
   editarEntidad,
   eliminarEntidades,
-  empresaId
+  empresaId,
 };

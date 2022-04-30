@@ -80,6 +80,8 @@ function eliminarProductos(req, res) {
   });
 }
 
+
+
 module.exports = {
   registroProductos,
   verProductos,
