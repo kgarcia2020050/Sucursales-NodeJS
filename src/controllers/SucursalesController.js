@@ -3,6 +3,7 @@
 const { response } = require("express");
 var Entidades = require("../models/modeloEntidad");
 var Sucursales = require("../models/modeloSucursales");
+const ProductosSucursales = require("../models/modeloProductosSucursales");
 
 function verSucursales(req, res) {
   var ID = req.params.ID;
@@ -74,6 +75,27 @@ function editarSucursal(req, res) {
       if (!sucursalModificada)
         return res.status(500).send({ Error: "Esta sucursal no existe." });
       return res.status(200).send({ Sucursal_modificada: sucursalModificada });
+    }
+  );
+}
+
+function misProductos(req,res){
+  var nombreSucursal=req.params.nombre;
+  ProductosSucursales.find({nombreEmpresa:nombreSucursal},(error,productosHallados)=>{
+    if(error) return res.status(500).send({Error:"Error al obtener los productos de una sucursal."})
+    return res.status(500).send({Mis_productos: productosHallados})
+  })
+}
+
+
+function sucursalNombre(req, res) {
+  var nombreSucursal = req.params.nombre;
+  Sucursales.find(
+    { nombreSucursal: nombreSucursal },
+    (error, sucursalEncontrada) => {
+      if (error)
+        return res.status(500).send({ Error: "Error al buscar la sucursal." });
+      return res.status(500).send({ Sucursal_encontrada: sucursalEncontrada });
     }
   );
 }
