@@ -79,14 +79,19 @@ function editarSucursal(req, res) {
   );
 }
 
-function misProductos(req,res){
-  var nombreSucursal=req.params.nombre;
-  ProductosSucursales.find({nombreEmpresa:nombreSucursal},(error,productosHallados)=>{
-    if(error) return res.status(500).send({Error:"Error al obtener los productos de una sucursal."})
-    return res.status(500).send({Mis_productos: productosHallados})
-  })
+function misProductos(req, res) {
+  var nombreSucursal = req.params.nombre;
+  ProductosSucursales.find(
+    { nombreEmpresa: nombreSucursal },
+    (error, productosHallados) => {
+      if (error)
+        return res
+          .status(500)
+          .send({ Error: "Error al obtener los productos de una sucursal." });
+      return res.status(500).send({ Mis_productos: productosHallados });
+    }
+  );
 }
-
 
 function sucursalNombre(req, res) {
   var nombreSucursal = req.params.nombre;
