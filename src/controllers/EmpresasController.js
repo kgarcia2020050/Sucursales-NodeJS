@@ -6,6 +6,7 @@ const Productos = require("../models/modeloProductos");
 const Sucursales = require("../models/modeloSucursales");
 
 function registroEntidades(req, res) {
+
   var datos = req.body;
   var modeloEntidades = new Entidades();
   if (
@@ -23,7 +24,7 @@ function registroEntidades(req, res) {
     modeloEntidades.usuario = datos.usuario;
     modeloEntidades.rol = "EMPRESA";
 
-    Entidades.find({ usuario: datos.usuario }, (error, empresaEncontrada) => {
+    Entidades.find({ nombreEmpresa: datos.nombreEmpresa }, (error, empresaEncontrada) => {
       if (empresaEncontrada.length == 0) {
         encriptar.hash(datos.password, null, null, (error, claveEncriptada) => {
           modeloEntidades.password = claveEncriptada;
@@ -37,9 +38,9 @@ function registroEntidades(req, res) {
             return res.status(200).send({ Empresa_nueva: empresaAgregada });
           });
         });
-      } /*  else {
+      } else {
         return res.status(500).send({ Error: "Esta empresa ya existe." });
-      } */
+      }
     });
   } else {
     return res
@@ -139,22 +140,17 @@ function eliminarEntidades(req, res) {
     { idEmpresa: idEmpresa },
     (error, sucursalesEliminadas) => {
       if (error)
-        return res
-          .status(500)
-          .send({
-            Error: "Error al eliminar las sucursales de la empresa requerida.",
-          });
+        return res.status(500).send({
+          Error: "Error al eliminar las sucursales de la empresa requerida.",
+        });
 
       Productos.deleteMany(
         { idEmpresa: idEmpresa },
         (error, productosEliminados) => {
           if (error)
-            return res
-              .status(500)
-              .send({
-                Error:
-                  "Error al eliminar los productos de la empresa requerida.",
-              });
+            return res.status(500).send({
+              Error: "Error al eliminar los productos de la empresa requerida.",
+            });
 
           Entidades.findByIdAndDelete(idEmpresa, (error, empresaEliminada) => {
             if (error)
@@ -172,8 +168,6 @@ function eliminarEntidades(req, res) {
     }
   );
 }
-
-
 
 module.exports = {
   registroEntidades,

@@ -8,22 +8,48 @@ function registroProductos(req, res) {
   var modeloProductos = new Productos();
 
   if (datos.nombreProducto && datos.nombreProveedor && datos.stock) {
-    modeloProductos.nombreProducto = datos.nombreProducto;
-    modeloProductos.nombreProveedor = datos.nombreProveedor;
-    modeloProductos.stock = datos.stock;
-    modeloProductos.idEmpresa = idEmpresa;
+    Productos.findOne(
+      { nombreProducto: datos.nombreProducto, idEmpresa: idEmpresa },
+      (error, productoExistente) => {
+        if (error)
+          return res
+            .status(500)
+            .send({ Error: "No se pudo buscar si hay un producto existente." });
+        if (productoExistente) {
+          Productos.findOneAndUpdate(
+            { nombreProducto: datos.nombreProducto, idEmpresa: idEmpresa },
+            { $inc: { stock: datos.stock } },
+            { new: true },
+            (error, stockActualizado) => {
+              if (error)
+                return res
+                  .status(500)
+                  .send({ Error: "Error al aumentar el stock." });
+                  return res.status(200).send({Proceso_exitoso:"Proceso exitoso."})
+            }
+          );
+        } else {
+          modeloProductos.nombreProducto = datos.nombreProducto;
+          modeloProductos.nombreProveedor = datos.nombreProveedor;
+          modeloProductos.stock = datos.stock;
+          modeloProductos.idEmpresa = idEmpresa;
 
-    modeloProductos.save((error, productoCreado) => {
-      if (error)
-        return res
-          .status(500)
-          .send({ Error: "Error en la petición para crear el producto." });
-      if (!productoCreado)
-        return res
-          .status(500)
-          .send({ Error: "No se pudo añadir el nuevo producto." });
-      return res.status(200).send({ Mis_productos: productoCreado });
-    });
+          modeloProductos.save((error, productoCreado) => {
+            if (error)
+              return res
+                .status(500)
+                .send({
+                  Error: "Error en la petición para crear el producto.",
+                });
+            if (!productoCreado)
+              return res
+                .status(500)
+                .send({ Error: "No se pudo añadir el nuevo producto." });
+            return res.status(200).send({ Mis_productos: productoCreado });
+          });
+        }
+      }
+    );
   } else {
     return res.status(500).send({
       Error: "Debes llenar los datos obligatorios.",

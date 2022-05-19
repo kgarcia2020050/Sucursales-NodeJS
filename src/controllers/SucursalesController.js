@@ -88,7 +88,7 @@ function misProductos(req, res) {
         return res
           .status(500)
           .send({ Error: "Error al obtener los productos de una sucursal." });
-      return res.status(500).send({ Mis_productos: productosHallados });
+      return res.status(200).send({ Mis_productos: productosHallados });
     }
   );
 }
@@ -128,4 +128,5 @@ module.exports = {
   editarSucursal,
   eliminarSucursal,
   idSucursal,
+  misProductos
 };
