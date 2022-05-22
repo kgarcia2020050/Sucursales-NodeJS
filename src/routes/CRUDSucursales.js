@@ -14,4 +14,6 @@ api.post("/nuevaSucursal/:ID",md_autenticacion.Auth,controller.nuevaSucursal)
 api.put("/editarSucursal/:ID",md_autenticacion.Auth,controller.editarSucursal)
 api.delete("/eliminarSucursal/:ID",md_autenticacion.Auth,controller.eliminarSucursal)
 
+api.put("/ventas/:nombre",md_autenticacion.Auth,controller.venta);
+
 module.exports=api;

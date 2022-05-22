@@ -122,11 +122,59 @@ function eliminarSucursal(req, res) {
   );
 }
 
+function venta(req, res) {
+  var nombreProducto = req.params.nombre;
+  var datos = req.body;
+  ProductosSucursales.findOne(
+    { nombreProducto: nombreProducto },
+    (error, productoEncontrado) => {
+      if (error)
+        return res
+          .status(500)
+          .send({ Error: "Error al tratar de vender los productos." });
+      if (!productoEncontrado)
+        return res.status(500).send({ Error: "Este producto no existe." });
+      if (datos.cantidad > productoEncontrado.cantidadProducto)
+        return res
+          .status(500)
+          .send({
+            Error: "No puedes vender una cantidad mayor al stock del producto.",
+          });
+      if (!datos.cantidad) {
+        return res.status(500).send({
+          Error: "Debes especificar la cantidad a vender del producto.",
+        });
+      } else {
+        ProductosSucursales.findOneAndUpdate(
+          { nombreProducto: nombreProducto },
+          { $inc: { cantidadProducto: datos.cantidad * -1 } },
+          { new: true },
+          (error, stockActualizado) => {
+            if (error)
+              return res
+                .status(500)
+                .send({ Error: "Error al modificar el stock." });
+            if (!stockActualizado)
+              return res.status(500).send({
+                Error: "No se pudo modificar el stock de la sucursal.",
+              });
+            return res
+              .status(200)
+              .send({ Stock_actualizado: stockActualizado });
+          }
+        );
+      }
+    }
+  );
+}
+
 module.exports = {
   verSucursales,
   nuevaSucursal,
   editarSucursal,
   eliminarSucursal,
   idSucursal,
-  misProductos
+  misProductos,
+  venta,
+  sucursalNombre
 };
